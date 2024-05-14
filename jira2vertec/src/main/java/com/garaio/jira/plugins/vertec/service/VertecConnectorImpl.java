@@ -4,7 +4,6 @@ import com.atlassian.cache.Cache;
 import com.atlassian.cache.CacheManager;
 import com.garaio.jira.plugins.configuration.JiraToVertecConfiguration;
 import com.garaio.jira.plugins.vertec.soap.VertecSoapEnvelope;
-import com.garaio.jira.plugins.vertec.soap.VertecSoapHeader;
 import org.apache.commons.io.IOUtils;
 
 import javax.xml.bind.JAXBException;
@@ -37,24 +36,7 @@ public class VertecConnectorImpl implements VertecConnector {
     }
 
     public String Query(VertecSoapEnvelope envelope) throws IOException, JAXBException {
-        if(configuration.getUseVertecCloudAuth()) {
-            envelope.setHeader(getCachedToken());
-        } else {
-            envelope.setHeader(configuration.getVertecServiceUser(), configuration.getVertecServicePassword());
-        }
-
         HttpURLConnection conn = executeRequest(envelope);
-        int statusCode = conn.getResponseCode();
-        switch (statusCode) {
-            case 400:
-            case 401:
-                if(configuration.getUseVertecCloudAuth()) {
-                    envelope.setHeader(resetCachedToken());
-                } else {
-                    envelope.setHeader(configuration.getVertecServiceUser(), configuration.getVertecServicePassword());
-                }
-            conn = executeRequest(envelope);
-        }
 
         return IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8.name());
     }
@@ -67,51 +49,11 @@ public class VertecConnectorImpl implements VertecConnector {
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "text/plain");
-
+        conn.setRequestProperty("Authorization", "Bearer " + configuration.getVertecServiceToken());
         OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
         wr.write(query);
         wr.flush();
 
         return conn;
-    }
-
-    private String authenticate() throws IOException {
-        String username = configuration.getVertecServiceUser();
-        String password = configuration.getVertecServicePassword();
-        String postData = String.format("vertec_username=%s&password=%s", username, password);
-
-        URL url = new URL(configuration.getVertecAuthServiceUrl());
-        URLConnection conn = url.openConnection();
-        conn.setDoOutput(true);
-        conn.setUseCaches(false);
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-        wr.write(postData);
-        wr.flush();
-
-        return IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8.name());
-    }
-
-    private String getCachedToken() throws IOException {
-        Cache<String, String> cache = cacheFactory.getCache(VERTEC_AUTH_TOKEN_CACHE_KEY, String.class, String.class);
-
-        String token = cache.get(VERTEC_AUTH_TOKEN_KEY);
-        if(token == null) {
-            token = authenticate();
-
-            cache.put(VERTEC_AUTH_TOKEN_KEY, token);
-        }
-
-        return token;
-    }
-
-    private String resetCachedToken() throws IOException {
-        String token = authenticate();
-
-        Cache<String, String> cache = cacheFactory.getCache(VERTEC_AUTH_TOKEN_CACHE_KEY, String.class, String.class);
-        cache.put(VERTEC_AUTH_TOKEN_KEY, token);
-
-        return token;
     }
 }

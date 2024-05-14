@@ -10,18 +10,8 @@ public class TestConfigurationImpl implements JiraToVertecConfiguration {
         return "http://erptest1:8090/xml";
     }
 
-    public String getVertecAuthServiceUrl() { return "http://erptest1:8090/auth/xml"; }
-
-    public String getVertecServiceUser() {
-        return "administrator";
-    }
-
-    public String getVertecServicePassword() {
-        return "";
-    }
-
-    public boolean getUseVertecCloudAuth() {
-        return true;
+    public String getVertecServiceToken() {
+        return "<test-token>";
     }
 
     public String getVertecJiraReferenceField() { return "referenz"; }

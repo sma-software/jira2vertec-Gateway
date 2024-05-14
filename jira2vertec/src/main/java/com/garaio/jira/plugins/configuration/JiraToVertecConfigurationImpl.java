@@ -11,10 +11,7 @@ import java.util.Properties;
  */
 public class JiraToVertecConfigurationImpl implements JiraToVertecConfiguration {
     private String vertecServiceUrl;
-    private String vertecAuthServiceUrl;
-    private String vertecServiceUser;
-    private String vertecServicePassword;
-    private boolean useVertecCloudAuth;
+    private String vertecServiceToken;
     private String vertecJiraReferenceField;
     private boolean vertecJiraReferenceFieldIsZusatzfeld;
     private String defaultPhaseIdWennNichtZugeordnet;
@@ -27,10 +24,7 @@ public class JiraToVertecConfigurationImpl implements JiraToVertecConfiguration 
     {
         Properties properties = PropertyLoader.loadProperties("JiraToVertec");
         vertecServiceUrl = properties.getProperty("vertecServiceUrl");
-        vertecAuthServiceUrl = properties.getProperty("vertecAuthServiceUrl");
-        vertecServiceUser = properties.getProperty("vertecServiceUser");
-        vertecServicePassword = properties.getProperty("vertecServicePassword");
-        useVertecCloudAuth = Boolean.parseBoolean(properties.getProperty("useVertecCloudAuth"));
+        vertecServiceToken = properties.getProperty("vertecServiceToken");
         vertecJiraReferenceField = properties.getProperty("vertecJiraReferenceField");
         vertecJiraReferenceFieldIsZusatzfeld = Boolean.parseBoolean(properties.getProperty("vertecJiraReferenceFieldIsZusatzfeld"));
         defaultPhaseIdWennNichtZugeordnet = properties.getProperty("defaultPhaseIdWennNichtZugeordnet");
@@ -44,19 +38,9 @@ public class JiraToVertecConfigurationImpl implements JiraToVertecConfiguration 
         return vertecServiceUrl;
     }
 
-    public String getVertecAuthServiceUrl() {
-        return vertecAuthServiceUrl;
+    public String getVertecServiceToken() {
+        return vertecServiceToken;
     }
-
-    public String getVertecServiceUser() {
-        return vertecServiceUser;
-    }
-
-    public String getVertecServicePassword() {
-        return vertecServicePassword;
-    }
-
-    public boolean getUseVertecCloudAuth() { return useVertecCloudAuth; }
 
     public String getVertecJiraReferenceField() {
         if(vertecJiraReferenceField != null && !vertecJiraReferenceField.isEmpty()) {

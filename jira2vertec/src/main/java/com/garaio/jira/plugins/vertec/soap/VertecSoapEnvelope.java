@@ -13,36 +13,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Envelope")
 public class VertecSoapEnvelope
 {
-    @XmlElement(name = "Header")
-    private VertecSoapHeader header;
-
     @XmlElement(name = "Body")
     private VertecSoapBody body;
 
     public VertecSoapEnvelope()
     {
         body = new VertecSoapBody();
-        header = new VertecSoapHeader();
     }
 
     public VertecSoapBody getBody()
     {
         return body;
-    }
-
-    public VertecSoapHeader getHeader()
-    {
-        return header;
-    }
-
-    public void setHeader(String token)
-    {
-        this.header = new VertecSoapHeader(token);
-    }
-
-    public void setHeader(String username, String password)
-    {
-        this.header = new VertecSoapHeader(username, password);
     }
 }
 
